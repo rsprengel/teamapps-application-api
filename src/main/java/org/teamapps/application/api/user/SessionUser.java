@@ -20,12 +20,13 @@
 package org.teamapps.application.api.user;
 
 import com.ibm.icu.util.ULocale;
+import org.teamapps.universaldb.context.UserContext;
 import org.teamapps.ux.session.SessionContext;
 
 import java.util.List;
 import java.util.Locale;
 
-public interface SessionUser {
+public interface SessionUser extends UserContext {
 
 	int getId();
 
@@ -42,6 +43,5 @@ public interface SessionUser {
 	Locale getLocale();
 
 	List<String> getRankedLanguages();
-
 
 }

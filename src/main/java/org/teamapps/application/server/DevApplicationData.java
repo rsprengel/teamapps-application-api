@@ -19,50 +19,62 @@
  */
 package org.teamapps.application.server;
 
-import org.teamapps.application.api.application.ApplicationBuilder;
 import org.teamapps.application.api.application.ApplicationInstanceData;
+import org.teamapps.application.api.application.BaseApplicationBuilder;
+import org.teamapps.application.api.config.ApplicationConfig;
 import org.teamapps.application.api.desktop.ApplicationDesktop;
-import org.teamapps.application.api.localization.LocalizationData;
-import org.teamapps.application.api.organization.OrgField;
-import org.teamapps.application.api.organization.OrgUnit;
+import org.teamapps.application.api.localization.ApplicationLocalizationProvider;
 import org.teamapps.application.api.privilege.*;
+import org.teamapps.application.api.ui.UiComponentFactory;
 import org.teamapps.application.api.user.SessionUser;
-import org.teamapps.icons.Icon;
+import org.teamapps.model.controlcenter.OrganizationFieldView;
+import org.teamapps.model.controlcenter.OrganizationUnitView;
 import org.teamapps.reporting.convert.DocumentConverter;
 import org.teamapps.universaldb.index.translation.TranslatableText;
 import org.teamapps.ux.application.ResponsiveApplication;
 import org.teamapps.ux.application.perspective.Perspective;
 import org.teamapps.ux.component.progress.MultiProgressDisplay;
+import org.teamapps.ux.session.SessionContext;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
 public class DevApplicationData implements ApplicationInstanceData {
 
-	private final ApplicationBuilder applicationBuilder;
-	private final List<OrgUnit> orgUnits;
+	private final ApplicationRole applicationRole;
+	private final SessionContext context;
+	private final Locale locale;
+	private final ApplicationLocalizationProvider localizationProvider;
+	private final BaseApplicationBuilder applicationBuilder;
+	private final List<OrganizationUnitView> organizationUnitViews;
 	private final DocumentConverter documentConverter;
 	private final ResponsiveApplication responsiveApplication;
-	private final Map<String, Map<String, String>> localizationMap;
-	private final Map<String, Map<String, String>> dictionaryMap;
+	private final SessionUser sessionUser;
+	private ApplicationPrivilegeProvider applicationPrivilegeProvider;
+	private UiComponentFactory uiComponentFactory;
 
-	public DevApplicationData(ApplicationBuilder applicationBuilder, List<OrgUnit> orgUnits, DocumentConverter documentConverter, ResponsiveApplication responsiveApplication) {
+	public DevApplicationData(ApplicationRole applicationRole, SessionContext context, Locale locale, ApplicationLocalizationProvider localizationProvider, BaseApplicationBuilder applicationBuilder, List<OrganizationUnitView> organizationUnitViews, DocumentConverter documentConverter, ResponsiveApplication responsiveApplication) {
+		this.applicationRole = applicationRole;
+		this.context = context;
+		this.locale = locale;
+		this.localizationProvider = localizationProvider;
 		this.applicationBuilder = applicationBuilder;
-		this.localizationMap = applicationBuilder.getLocalizationData() != null ? applicationBuilder.getLocalizationData().createLocalizationMapByLanguage() : new HashMap<>();
-		this.orgUnits = orgUnits;
+		this.organizationUnitViews = organizationUnitViews;
 		this.documentConverter = documentConverter;
 		this.responsiveApplication = responsiveApplication;
-		dictionaryMap = LocalizationData.createDictionaryData(getClass().getClassLoader()).createLocalizationMapByLanguage();
+		sessionUser = new DevSessionUser(context, locale);
+		applicationPrivilegeProvider = applicationRole != null ? new DevApplicationRolePrivilegeProvider(applicationRole, new HashSet<>(organizationUnitViews)) : null;
+		this.uiComponentFactory = new DevUiComponentFactory(this);
 	}
 
 	@Override
 	public SessionUser getUser() {
-		return null;
+		return sessionUser;
 	}
 
 	@Override
-	public OrgField getOrganizationField() {
+	public OrganizationFieldView getOrganizationField() {
 		return null;
 	}
 
@@ -87,9 +99,23 @@ public class DevApplicationData implements ApplicationInstanceData {
 	}
 
 	@Override
-	public ApplicationDesktop createApplicationDesktop(Icon icon, String title, boolean select, boolean closable) {
-		//todo
+	public ApplicationDesktop createApplicationDesktop() {
 		return null;
+	}
+
+	@Override
+	public UiComponentFactory getComponentFactory() {
+		return uiComponentFactory;
+	}
+
+	@Override
+	public boolean isDarkTheme() {
+		return false;
+	}
+
+	@Override
+	public ApplicationConfig<?> getApplicationConfig() {
+		return applicationBuilder.getApplicationConfig();
 	}
 
 	@Override
@@ -103,76 +129,67 @@ public class DevApplicationData implements ApplicationInstanceData {
 	}
 
 	@Override
-	public String getLocalized(String key, Object... parameters) {
-		for (Map<String, String> map : localizationMap.values()) {
-			if (map.containsKey(key)) {
-				return map.get(key);
-			}
-		}
-		for (Map<String, String> map : dictionaryMap.values()) {
-			if (map.containsKey(key)) {
-				return map.get(key);
-			}
-		}
-		return key;
-	}
-
-	@Override
-	public String getLocalized(TranslatableText translatableText) {
-		if (translatableText == null) {
-			return null;
-		}
-		return translatableText.getText();
-	}
-
-	@Override
 	public boolean isAllowed(SimplePrivilege simplePrivilege) {
-		return true;
+		return applicationPrivilegeProvider == null || applicationPrivilegeProvider.isAllowed(simplePrivilege);
 	}
 
 	@Override
-	public boolean isAllowed(SimpleOrganizationalPrivilege group, OrgUnit orgUnit) {
-		return true;
+	public boolean isAllowed(SimpleOrganizationalPrivilege group, OrganizationUnitView organizationUnitView) {
+		return applicationPrivilegeProvider == null || applicationPrivilegeProvider.isAllowed(group, organizationUnitView);
 	}
 
 	@Override
 	public boolean isAllowed(SimpleCustomObjectPrivilege group, PrivilegeObject privilegeObject) {
-		return true;
+		return applicationPrivilegeProvider == null || applicationPrivilegeProvider.isAllowed(group, privilegeObject);
 	}
 
 	@Override
 	public boolean isAllowed(StandardPrivilegeGroup group, Privilege privilege) {
-		return true;
+		return applicationPrivilegeProvider == null || applicationPrivilegeProvider.isAllowed(group, privilege);
 	}
 
 	@Override
-	public boolean isAllowed(OrganizationalPrivilegeGroup group, Privilege privilege, OrgUnit orgUnit) {
-		return true;
+	public boolean isAllowed(OrganizationalPrivilegeGroup group, Privilege privilege, OrganizationUnitView organizationUnitView) {
+		return applicationPrivilegeProvider == null || applicationPrivilegeProvider.isAllowed(group, privilege, organizationUnitView);
 	}
 
 	@Override
 	public boolean isAllowed(CustomObjectPrivilegeGroup group, Privilege privilege, PrivilegeObject privilegeObject) {
-		return true;
+		return applicationPrivilegeProvider == null || applicationPrivilegeProvider.isAllowed(group, privilege, privilegeObject);
 	}
 
 	@Override
-	public List<OrgUnit> getAllowedUnits(SimpleOrganizationalPrivilege simplePrivilege) {
-		return orgUnits;
+	public List<OrganizationUnitView> getAllowedUnits(SimpleOrganizationalPrivilege simplePrivilege) {
+		return applicationPrivilegeProvider != null ? applicationPrivilegeProvider.getAllowedUnits(simplePrivilege) : organizationUnitViews;
 	}
 
 	@Override
-	public List<OrgUnit> getAllowedUnits(OrganizationalPrivilegeGroup group, Privilege privilege) {
-		return orgUnits;
+	public List<OrganizationUnitView> getAllowedUnits(OrganizationalPrivilegeGroup group, Privilege privilege) {
+		return applicationPrivilegeProvider != null ? applicationPrivilegeProvider.getAllowedUnits(group, privilege) : organizationUnitViews;
 	}
 
 	@Override
 	public List<PrivilegeObject> getAllowedPrivilegeObjects(SimpleCustomObjectPrivilege simplePrivilege) {
-		return simplePrivilege.getPrivilegeObjectsSupplier().get();
+		return applicationPrivilegeProvider != null ? applicationPrivilegeProvider.getAllowedPrivilegeObjects(simplePrivilege) : simplePrivilege.getPrivilegeObjectsSupplier().get();
 	}
 
 	@Override
 	public List<PrivilegeObject> getAllowedPrivilegeObjects(CustomObjectPrivilegeGroup group, Privilege privilege) {
-		return group.getPrivilegeObjectsSupplier().get();
+		return applicationPrivilegeProvider != null ? applicationPrivilegeProvider.getAllowedPrivilegeObjects(group, privilege) : group.getPrivilegeObjectsSupplier().get();
 	}
 
+	@Override
+	public String getLocalized(String key, Object... parameters) {
+		return localizationProvider.getLocalized(key, parameters);
+	}
+
+	@Override
+	public String getLocalized(String key, List<String> languagePriorityOrder, Object... parameters) {
+		return localizationProvider.getLocalized(key, languagePriorityOrder, parameters);
+	}
+
+	@Override
+	public String getLocalized(TranslatableText translatableText) {
+		return localizationProvider.getLocalized(translatableText);
+	}
 }

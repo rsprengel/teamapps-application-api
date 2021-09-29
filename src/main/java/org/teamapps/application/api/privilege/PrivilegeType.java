@@ -26,5 +26,9 @@ public enum PrivilegeType {
 	DELETE,
 	EXECUTE,
 	PRINT,
+	RESTORE,
+	SHOW_RECYCLE_BIN,
+	IMPORT,
+	EXPORT,
 	CUSTOM,
 }

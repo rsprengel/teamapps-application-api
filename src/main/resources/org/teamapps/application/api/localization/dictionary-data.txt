@@ -6,6 +6,8 @@ Create
 Read
 Update
 Revert
+Restore
+Restore record
 Refresh
 Revert changes
 Remove
@@ -15,6 +17,7 @@ Delete
 Delete record
 Execute
 Print
+Apply
 Custom
 Save
 Save changes
@@ -59,6 +62,19 @@ Overview
 Preview
 Preview image
 Copy
+Zoom in
+Zoom out
+Increase
+Decrease
+Import
+Export
+Recycle bin
+Show recycle bin
+New
+Reset
+Discard
+Overwrite
+Publish
 
 ::options
 OK
@@ -86,11 +102,6 @@ Salutation
 Name
 First name
 Last name
-Street
-City
-Postal code
-Federal state
-Country
 Phone number
 Mobile number
 E-Mail
@@ -98,6 +109,28 @@ Language
 All languages
 My main language
 All my languages
+Birthdate
+
+::address
+Address
+Postal address
+Organization
+Street
+City
+Dependent locality
+Postal code
+State
+Country
+P.O. Box
+Latitude
+Longitude
+
+::reports
+Currency
+Max
+Min
+Sum
+Average
 
 ::login
 Login
@@ -120,13 +153,13 @@ Error: incorrect username or password
 Error resetting the password
 Session Terminated
 Session Expired
-Your session has expired.\n\nPlease refresh this page. If you click cancel, the application will remain unresponsive until you refresh the page.
-A server-side error has occurred.\n\nPlease refresh this page. If you click cancel, the application will remain unresponsive until you refresh the page.
-Your session has been terminated.\\n\\nPlease refresh this page. If you click cancel, the application will remain unresponsive until you refresh the page.
 The password was changed successfully - you can now log in.
 Your account was created successfully - you can now log in.
 
 ::record data
+Meta data
+Creation
+Modification
 Creation date
 Modification date
 Deletion date
@@ -135,6 +168,10 @@ Created by
 Modified by
 Deleted by
 Restored by
+Deleted
+Restored
+Last record
+First record
 This field is required.
 This field must not be empty
 Field value must not be empty
@@ -153,6 +190,18 @@ The record was successfully created
 Do you really want to delete the record?
 Confirm deletion
 Do you really want to delete all data?
+
+::validation
+Please enter a value
+Not a valid e-mail address
+Not a valid phone number
+Not a valid IP address
+Not a valid date
+Text entered is too short
+Text entered is too long
+The field must contain at least {0} characters
+The field {0} must contain at least {1} characters
+The field must contain less than {0} characters
 
 ::calendar
 Year
@@ -173,6 +222,10 @@ Today
 Now
 Previous
 Next
+Date
+Time
+Timestamp
+Duration
 
 ::grouping
 Group
@@ -199,6 +252,19 @@ Select application perspective
 Privileges
 Translation key
 Error: translation key already exists
+Error: the active application caused an error an will be closed.
+Welcome
+Translation
+Translations
+Editor pane
+Editor pane below
+Editor pane on the right
+Editor pane as window
+Central editor pane
+Display the editor pane on the right side
+Display the editor pane below the master view
+Display the editor pane as popup window
+Display the editor pane in the center
 
 ::other
 Rotate
@@ -207,10 +273,15 @@ Crop image
 No running tasks
 Error: unknown link
 Applications
+Application
+Application perspective
+Perspective
 Home
 Administration
 Preferences
 Optional
+Location
+Database
 
 ::countries
 country.AF_AFGHANISTAN=Afghanistan

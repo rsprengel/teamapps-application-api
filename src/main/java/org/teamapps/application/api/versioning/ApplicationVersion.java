@@ -51,6 +51,14 @@ public class ApplicationVersion implements Comparable<ApplicationVersion> {
 		this.patch = patch;
 	}
 
+	public ApplicationVersion(String vale) {
+		String[] parts = vale.split("\\.");
+		major = Integer.parseInt(parts[0]);
+		minor = Integer.parseInt(parts[1]);
+		patch = Integer.parseInt(parts[2].substring(0, parts[2].indexOf('-')));
+		tag = parts[2].substring(parts[2].indexOf('-'));
+	}
+
 	public String getTag() {
 		return tag;
 	}

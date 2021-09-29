@@ -28,6 +28,8 @@ public class Dictionary {
 	public static final String READ = "org.teamapps.dictionary.read";
 	public static final String UPDATE = "org.teamapps.dictionary.update";
 	public static final String REVERT = "org.teamapps.dictionary.revert";
+	public static final String RESTORE = "org.teamapps.dictionary.restore";
+	public static final String RESTORE_RECORD = "org.teamapps.dictionary.restoreRecord";
 	public static final String REFRESH = "org.teamapps.dictionary.refresh";
 	public static final String REVERT_CHANGES = "org.teamapps.dictionary.revertChanges";
 	public static final String REMOVE = "org.teamapps.dictionary.remove";
@@ -37,6 +39,7 @@ public class Dictionary {
 	public static final String DELETE_RECORD = "org.teamapps.dictionary.deleteRecord";
 	public static final String EXECUTE = "org.teamapps.dictionary.execute";
 	public static final String PRINT = "org.teamapps.dictionary.print";
+	public static final String APPLY = "org.teamapps.dictionary.apply";
 	public static final String CUSTOM = "org.teamapps.dictionary.custom";
 	public static final String SAVE = "org.teamapps.dictionary.save";
 	public static final String SAVE_CHANGES = "org.teamapps.dictionary.saveChanges";
@@ -80,6 +83,20 @@ public class Dictionary {
 	public static final String OVERVIEW = "org.teamapps.dictionary.overview";
 	public static final String PREVIEW = "org.teamapps.dictionary.preview";
 	public static final String PREVIEW_IMAGE = "org.teamapps.dictionary.previewImage";
+	public static final String COPY = "org.teamapps.dictionary.copy";
+	public static final String ZOOM_IN = "org.teamapps.dictionary.zoomIn";
+	public static final String ZOOM_OUT = "org.teamapps.dictionary.zoomOut";
+	public static final String INCREASE = "org.teamapps.dictionary.increase";
+	public static final String DECREASE = "org.teamapps.dictionary.decrease";
+	public static final String IMPORT = "org.teamapps.dictionary.import";
+	public static final String EXPORT = "org.teamapps.dictionary.export";
+	public static final String RECYCLE_BIN = "org.teamapps.dictionary.recycleBin";
+	public static final String SHOW_RECYCLE_BIN = "org.teamapps.dictionary.showRecycleBin";
+	public static final String NEW = "org.teamapps.dictionary.new";
+	public static final String RESET = "org.teamapps.dictionary.reset";
+	public static final String DISCARD = "org.teamapps.dictionary.discard";
+	public static final String OVERWRITE = "org.teamapps.dictionary.overwrite";
+	public static final String PUBLISH = "org.teamapps.dictionary.publish";
 	//options
 	public static final String O_K = "org.teamapps.dictionary.oK";
 	public static final String YES = "org.teamapps.dictionary.yes";
@@ -104,11 +121,6 @@ public class Dictionary {
 	public static final String NAME = "org.teamapps.dictionary.name";
 	public static final String FIRST_NAME = "org.teamapps.dictionary.firstName";
 	public static final String LAST_NAME = "org.teamapps.dictionary.lastName";
-	public static final String STREET = "org.teamapps.dictionary.street";
-	public static final String CITY = "org.teamapps.dictionary.city";
-	public static final String POSTAL_CODE = "org.teamapps.dictionary.postalCode";
-	public static final String FEDERAL_STATE = "org.teamapps.dictionary.federalState";
-	public static final String COUNTRY = "org.teamapps.dictionary.country";
 	public static final String PHONE_NUMBER = "org.teamapps.dictionary.phoneNumber";
 	public static final String MOBILE_NUMBER = "org.teamapps.dictionary.mobileNumber";
 	public static final String E_MAIL = "org.teamapps.dictionary.eMail";
@@ -116,6 +128,26 @@ public class Dictionary {
 	public static final String ALL_LANGUAGES = "org.teamapps.dictionary.allLanguages";
 	public static final String MY_MAIN_LANGUAGE = "org.teamapps.dictionary.myMainLanguage";
 	public static final String ALL_MY_LANGUAGES = "org.teamapps.dictionary.allMyLanguages";
+	public static final String BIRTHDATE = "org.teamapps.dictionary.birthdate";
+	//address
+	public static final String ADDRESS = "org.teamapps.dictionary.address";
+	public static final String POSTAL_ADDRESS = "org.teamapps.dictionary.postalAddress";
+	public static final String ORGANIZATION = "org.teamapps.dictionary.organization";
+	public static final String STREET = "org.teamapps.dictionary.street";
+	public static final String CITY = "org.teamapps.dictionary.city";
+	public static final String DEPENDENT_LOCALITY = "org.teamapps.dictionary.dependentLocality";
+	public static final String POSTAL_CODE = "org.teamapps.dictionary.postalCode";
+	public static final String STATE = "org.teamapps.dictionary.state";
+	public static final String COUNTRY = "org.teamapps.dictionary.country";
+	public static final String P_OBOX = "org.teamapps.dictionary.pOBox";
+	public static final String LATITUDE = "org.teamapps.dictionary.latitude";
+	public static final String LONGITUDE = "org.teamapps.dictionary.longitude";
+	//reports
+	public static final String CURRENCY = "org.teamapps.dictionary.currency";
+	public static final String MAX = "org.teamapps.dictionary.max";
+	public static final String MIN = "org.teamapps.dictionary.min";
+	public static final String SUM = "org.teamapps.dictionary.sum";
+	public static final String AVERAGE = "org.teamapps.dictionary.average";
 	//login
 	public static final String LOGIN = "org.teamapps.dictionary.login";
 	public static final String LOGOUT = "org.teamapps.dictionary.logout";
@@ -137,12 +169,12 @@ public class Dictionary {
 	public static final String ERROR_RESETTING_THE_PASSWORD = "org.teamapps.dictionary.errorResettingThePassword";
 	public static final String SESSION_TERMINATED = "org.teamapps.dictionary.sessionTerminated";
 	public static final String SESSION_EXPIRED = "org.teamapps.dictionary.sessionExpired";
-	public static final String SENTENCE_YOUR_SESSION_HAS_EXPIREDNN_PLEASE_R__ = "org.teamapps.dictionary.yourSessionHasExpirednnPleaseRefreshThisPageIfYouClickCancelTheApplicationWillRemainUnresponsiveUntilYouRefreshThePage";
-	public static final String SENTENCE_A_SERVERSIDE_ERROR_HAS_OCCURREDNN_P__ = "org.teamapps.dictionary.aServersideErrorHasOccurrednnPleaseRefreshThisPageIfYouClickCancelTheApplicationWillRemainUnresponsiveUntilYouRefreshThePage";
-	public static final String SENTENCE_YOUR_SESSION_HAS_BEEN_TERMINATEDNN___ = "org.teamapps.dictionary.yourSessionHasBeenTerminatednnPleaseRefreshThisPageIfYouClickCancelTheApplicationWillRemainUnresponsiveUntilYouRefreshThePage";
 	public static final String SENTENCE_THE_PASSWORD_WAS_CHANGED_SUCCESSFUL__ = "org.teamapps.dictionary.thePasswordWasChangedSuccessfullyYouCanNowLogIn";
 	public static final String SENTENCE_YOUR_ACCOUNT_WAS_CREATED_SUCCESSFUL__ = "org.teamapps.dictionary.yourAccountWasCreatedSuccessfullyYouCanNowLogIn";
 	//record data
+	public static final String META_DATA = "org.teamapps.dictionary.metaData";
+	public static final String CREATION = "org.teamapps.dictionary.creation";
+	public static final String MODIFICATION = "org.teamapps.dictionary.modification";
 	public static final String CREATION_DATE = "org.teamapps.dictionary.creationDate";
 	public static final String MODIFICATION_DATE = "org.teamapps.dictionary.modificationDate";
 	public static final String DELETION_DATE = "org.teamapps.dictionary.deletionDate";
@@ -151,6 +183,10 @@ public class Dictionary {
 	public static final String MODIFIED_BY = "org.teamapps.dictionary.modifiedBy";
 	public static final String DELETED_BY = "org.teamapps.dictionary.deletedBy";
 	public static final String RESTORED_BY = "org.teamapps.dictionary.restoredBy";
+	public static final String DELETED = "org.teamapps.dictionary.deleted";
+	public static final String RESTORED = "org.teamapps.dictionary.restored";
+	public static final String LAST_RECORD = "org.teamapps.dictionary.lastRecord";
+	public static final String FIRST_RECORD = "org.teamapps.dictionary.firstRecord";
 	public static final String THIS_FIELD_IS_REQUIRED = "org.teamapps.dictionary.thisFieldIsRequired";
 	public static final String THIS_FIELD_MUST_NOT_BE_EMPTY = "org.teamapps.dictionary.thisFieldMustNotBeEmpty";
 	public static final String FIELD_VALUE_MUST_NOT_BE_EMPTY = "org.teamapps.dictionary.fieldValueMustNotBeEmpty";
@@ -169,6 +205,17 @@ public class Dictionary {
 	public static final String SENTENCE_DO_YOU_REALLY_WANT_TO_DELETE_THE_RE__ = "org.teamapps.dictionary.doYouReallyWantToDeleteTheRecord";
 	public static final String CONFIRM_DELETION = "org.teamapps.dictionary.confirmDeletion";
 	public static final String SENTENCE_DO_YOU_REALLY_WANT_TO_DELETE_ALL_DA__ = "org.teamapps.dictionary.doYouReallyWantToDeleteAllData";
+	//validation
+	public static final String PLEASE_ENTER_AVALUE = "org.teamapps.dictionary.pleaseEnterAValue";
+	public static final String NOT_AVALID_EMAIL_ADDRESS = "org.teamapps.dictionary.notAValidEmailAddress";
+	public static final String NOT_AVALID_PHONE_NUMBER = "org.teamapps.dictionary.notAValidPhoneNumber";
+	public static final String NOT_AVALID_IP_ADDRESS = "org.teamapps.dictionary.notAValidIPAddress";
+	public static final String NOT_AVALID_DATE = "org.teamapps.dictionary.notAValidDate";
+	public static final String TEXT_ENTERED_IS_TOO_SHORT = "org.teamapps.dictionary.textEnteredIsTooShort";
+	public static final String TEXT_ENTERED_IS_TOO_LONG = "org.teamapps.dictionary.textEnteredIsTooLong";
+	public static final String SENTENCE_THE_FIELD_MUST_CONTAIN_AT_LEAST0_CH__ = "org.teamapps.dictionary.theFieldMustContainAtLeast0Characters";
+	public static final String SENTENCE_THE_FIELD0_MUST_CONTAIN_AT_LEAST1_C__ = "org.teamapps.dictionary.theField0MustContainAtLeast1Characters";
+	public static final String SENTENCE_THE_FIELD_MUST_CONTAIN_LESS_THAN0_C__ = "org.teamapps.dictionary.theFieldMustContainLessThan0Characters";
 	//calendar
 	public static final String YEAR = "org.teamapps.dictionary.year";
 	public static final String YEARS = "org.teamapps.dictionary.years";
@@ -188,6 +235,10 @@ public class Dictionary {
 	public static final String NOW = "org.teamapps.dictionary.now";
 	public static final String PREVIOUS = "org.teamapps.dictionary.previous";
 	public static final String NEXT = "org.teamapps.dictionary.next";
+	public static final String DATE = "org.teamapps.dictionary.date";
+	public static final String TIME = "org.teamapps.dictionary.time";
+	public static final String TIMESTAMP = "org.teamapps.dictionary.timestamp";
+	public static final String DURATION = "org.teamapps.dictionary.duration";
 	//grouping
 	public static final String GROUP = "org.teamapps.dictionary.group";
 	public static final String GROUPING = "org.teamapps.dictionary.grouping";
@@ -212,6 +263,19 @@ public class Dictionary {
 	public static final String PRIVILEGES = "org.teamapps.dictionary.privileges";
 	public static final String TRANSLATION_KEY = "org.teamapps.dictionary.translationKey";
 	public static final String ERROR_TRANSLATION_KEY_ALREADY_EXISTS = "org.teamapps.dictionary.errorTranslationKeyAlreadyExists";
+	public static final String SENTENCE_ERROR_THE_ACTIVE_APPLICATION_CAUSED__ = "org.teamapps.dictionary.errorTheActiveApplicationCausedAnErrorAnWillBeClosed";
+	public static final String WELCOME = "org.teamapps.dictionary.welcome";
+	public static final String TRANSLATION = "org.teamapps.dictionary.translation";
+	public static final String TRANSLATIONS = "org.teamapps.dictionary.translations";
+	public static final String EDITOR_PANE = "org.teamapps.dictionary.editorPane";
+	public static final String EDITOR_PANE_BELOW = "org.teamapps.dictionary.editorPaneBelow";
+	public static final String EDITOR_PANE_ON_THE_RIGHT = "org.teamapps.dictionary.editorPaneOnTheRight";
+	public static final String EDITOR_PANE_AS_WINDOW = "org.teamapps.dictionary.editorPaneAsWindow";
+	public static final String CENTRAL_EDITOR_PANE = "org.teamapps.dictionary.centralEditorPane";
+	public static final String SENTENCE_DISPLAY_THE_EDITOR_PANE_ON_THE_RIGH__ = "org.teamapps.dictionary.displayTheEditorPaneOnTheRightSide";
+	public static final String SENTENCE_DISPLAY_THE_EDITOR_PANE_BELOW_THE_M__ = "org.teamapps.dictionary.displayTheEditorPaneBelowTheMasterView";
+	public static final String SENTENCE_DISPLAY_THE_EDITOR_PANE_AS_POPUP_WI__ = "org.teamapps.dictionary.displayTheEditorPaneAsPopupWindow";
+	public static final String SENTENCE_DISPLAY_THE_EDITOR_PANE_IN_THE_CENT__ = "org.teamapps.dictionary.displayTheEditorPaneInTheCenter";
 	//other
 	public static final String ROTATE = "org.teamapps.dictionary.rotate";
 	public static final String ROTATE_PICTURE = "org.teamapps.dictionary.rotatePicture";
@@ -219,10 +283,15 @@ public class Dictionary {
 	public static final String NO_RUNNING_TASKS = "org.teamapps.dictionary.noRunningTasks";
 	public static final String ERROR_UNKNOWN_LINK = "org.teamapps.dictionary.errorUnknownLink";
 	public static final String APPLICATIONS = "org.teamapps.dictionary.applications";
+	public static final String APPLICATION = "org.teamapps.dictionary.application";
+	public static final String APPLICATION_PERSPECTIVE = "org.teamapps.dictionary.applicationPerspective";
+	public static final String PERSPECTIVE = "org.teamapps.dictionary.perspective";
 	public static final String HOME = "org.teamapps.dictionary.home";
 	public static final String ADMINISTRATION = "org.teamapps.dictionary.administration";
 	public static final String PREFERENCES = "org.teamapps.dictionary.preferences";
 	public static final String OPTIONAL = "org.teamapps.dictionary.optional";
+	public static final String LOCATION = "org.teamapps.dictionary.location";
+	public static final String DATABASE = "org.teamapps.dictionary.database";
 	//countries
 	public static final String COUNTRY_AF_AFGHANISTAN = "org.teamapps.dictionary.country.AF_AFGHANISTAN";
 	public static final String COUNTRY_AX_ALAND_ISLANDS = "org.teamapps.dictionary.country.AX_ALAND_ISLANDS";

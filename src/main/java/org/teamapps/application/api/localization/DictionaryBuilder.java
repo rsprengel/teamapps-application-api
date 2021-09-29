@@ -113,7 +113,7 @@ public class DictionaryBuilder {
 		}
 
 		File dictionary = new File(path, "Dictionary.java");
-		File resource = new File(resourcePath, "dictionary.properties");
+		File resource = new File(resourcePath, "dictionary_en.properties");
 		if (!dictionary.exists() || !resource.exists()) {
 			System.err.println("Error paths do not exist!");
 			return;

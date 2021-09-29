@@ -27,5 +27,7 @@ public interface LocalizationEntrySet {
 
 	List<LocalizationEntry> getEntries();
 
+	boolean isMachineTranslation();
+
 
 }

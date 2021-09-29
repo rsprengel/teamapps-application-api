@@ -21,9 +21,23 @@ package org.teamapps.application.api.localization;
 
 import org.teamapps.universaldb.index.translation.TranslatableText;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
 public interface ApplicationLocalizationProvider {
 
 	String getLocalized(String key, Object... parameters);
+
+	String getLocalized(String key, List<String> languagePriorityOrder, Object... parameters);
+
+	default String getLocalized(String key, String language, Object... parameters) {
+		return getLocalized(key, Collections.singletonList(language), parameters);
+	}
+
+	default String getLocalized(String key, Locale locale, Object... parameters) {
+		return getLocalized(key, Collections.singletonList(locale.getLanguage()), parameters);
+	}
 
 	String getLocalized(TranslatableText translatableText);
 }

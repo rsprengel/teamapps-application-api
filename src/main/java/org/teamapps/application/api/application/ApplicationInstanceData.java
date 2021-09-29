@@ -19,12 +19,14 @@
  */
 package org.teamapps.application.api.application;
 
+import org.teamapps.application.api.config.ApplicationConfig;
 import org.teamapps.application.api.desktop.ApplicationDesktop;
 import org.teamapps.application.api.localization.ApplicationLocalizationProvider;
-import org.teamapps.application.api.organization.OrgField;
 import org.teamapps.application.api.privilege.ApplicationPrivilegeProvider;
+import org.teamapps.application.api.ui.UiComponentFactory;
 import org.teamapps.application.api.user.SessionUser;
 import org.teamapps.icons.Icon;
+import org.teamapps.model.controlcenter.OrganizationFieldView;
 import org.teamapps.reporting.convert.DocumentConverter;
 import org.teamapps.ux.application.perspective.Perspective;
 import org.teamapps.ux.component.progress.MultiProgressDisplay;
@@ -37,7 +39,7 @@ public interface ApplicationInstanceData extends ApplicationPrivilegeProvider, A
 
 	SessionUser getUser();
 
-	OrgField getOrganizationField();
+	OrganizationFieldView getOrganizationField();
 
 	int getManagedApplicationId();
 
@@ -48,8 +50,9 @@ public interface ApplicationInstanceData extends ApplicationPrivilegeProvider, A
 	default <RESULT> void runTaskAsync(Icon icon, String title, Supplier<RESULT> task, Consumer<RESULT> uiResultTask) {
 		SessionContext context = SessionContext.current();
 		MultiProgressDisplay multiProgressDisplay = getMultiProgressDisplay();
-		multiProgressDisplay.addTask(icon, title, () -> {
+		multiProgressDisplay.addTask(icon, title, progressMonitor -> {
 			RESULT result = task.get();
+			progressMonitor.markCompleted();
 			if (uiResultTask != null) {
 				context.runWithContext(() -> uiResultTask.accept(result));
 			}
@@ -58,7 +61,13 @@ public interface ApplicationInstanceData extends ApplicationPrivilegeProvider, A
 
 	void showPerspective(Perspective perspective);
 
-	ApplicationDesktop createApplicationDesktop(Icon icon, String title, boolean select, boolean closable);
+	ApplicationDesktop createApplicationDesktop();
+
+	UiComponentFactory getComponentFactory();
+
+	boolean isDarkTheme();
+
+	ApplicationConfig<?> getApplicationConfig();
 
 	void writeActivityLog(String title, String data);
 

@@ -4,16 +4,16 @@
 
     <groupId>org.teamapps</groupId>
     <artifactId>teamapps-application-api</artifactId>
-    <version>0.17-SNAPSHOT</version>
+    <version>0.48-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>14</maven.compiler.source>
         <maven.compiler.target>14</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-assembly-plugin-version>3.0.0</maven-assembly-plugin-version>
-        <teamapps-version>0.9.95</teamapps-version>
-        <universal-db-version>0.4.20-SNAPSHOT</universal-db-version>
-        <teamapps-universal-db-integration-version>0.10-SNAPSHOT</teamapps-universal-db-integration-version>
+        <teamapps-version>0.9.109</teamapps-version>
+        <universal-db-version>0.5.9</universal-db-version>
+        <teamapps-universal-db-integration-version>0.11</teamapps-universal-db-integration-version>
     </properties>
 
     <name>TeamApps Application API</name>
@@ -78,6 +78,16 @@
             <groupId>org.teamapps</groupId>
             <artifactId>universal-db</artifactId>
             <version>${universal-db-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>google-http-client</artifactId>
+                    <groupId>com.google.http-client</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -87,10 +97,86 @@
         </dependency>
 
         <dependency>
+            <groupId>one.util</groupId>
+            <artifactId>streamex</artifactId>
+            <version>0.7.3</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.0-b170201.1204</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/javax.activation/activation -->
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime -->
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.0-b170127.1453</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.teamapps</groupId>
             <artifactId>teamapps-reporting</artifactId>
-            <version>1.7</version>
+            <version>1.8</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>commons-lang3</artifactId>
+                    <groupId>org.apache.commons</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>commons-io</artifactId>
+                    <groupId>commons-io</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>httpclient</artifactId>
+                    <groupId>org.apache.httpcomponents</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>checker-qual</artifactId>
+                    <groupId>org.checkerframework</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>commons-compress</artifactId>
+                    <groupId>org.apache.commons</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>error_prone_annotations</artifactId>
+                    <groupId>com.google.errorprone</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-core</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-databind</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jakarta.activation-api</artifactId>
+                    <groupId>jakarta.activation</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.30</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.teamapps</groupId>
@@ -101,7 +187,7 @@
         <dependency>
             <groupId>org.teamapps</groupId>
             <artifactId>teamapps-flags-icon-provider</artifactId>
-            <version>0.9.9</version>
+            <version>0.9.12</version>
         </dependency>
 
         <dependency>
@@ -122,28 +208,53 @@
             <version>68.2</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>1.4.15</version>
-        </dependency>
 
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-translate</artifactId>
             <version>1.95.6</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-lang3</artifactId>
+                    <groupId>org.apache.commons</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>guava</artifactId>
+                    <groupId>com.google.guava</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>commons-codec</artifactId>
+                    <groupId>commons-codec</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>de.mkammerer</groupId>
             <artifactId>argon2-jvm</artifactId>
             <version>2.5</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jna</artifactId>
+                    <groupId>net.java.dev.jna</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>nl.basjes.parse.useragent</groupId>
             <artifactId>yauaa</artifactId>
             <version>5.12</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-lang3</artifactId>
+                    <groupId>org.apache.commons</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>commons-collections4</artifactId>
+                    <groupId>org.apache.commons</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -152,6 +263,37 @@
             <version>2.0.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+            <version>8.12.19</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>prefixmapper</artifactId>
+            <version>2.155</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>carrier</artifactId>
+            <version>1.145</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>geocoder</artifactId>
+            <version>2.155</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -171,6 +313,8 @@
                             <modelSourceDirectory>${project.basedir}/src/main/model</modelSourceDirectory>
                             <modelClasses>
                                 <modelClass>Model</modelClass>
+                                <modelClass>ApiModel</modelClass>
+                                <modelClass>MockModel</modelClass>
                             </modelClasses>
                         </configuration>
                     </execution>

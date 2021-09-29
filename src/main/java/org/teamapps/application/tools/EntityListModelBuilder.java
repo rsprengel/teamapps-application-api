@@ -21,102 +21,26 @@ package org.teamapps.application.tools;
 
 import org.teamapps.application.api.application.ApplicationInstanceData;
 import org.teamapps.udb.filter.TimeIntervalFilter;
+import org.teamapps.universaldb.pojo.Entity;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class EntityListModelBuilder<RECORD> extends RecordModelBuilder<RECORD> {
-
-	private List<RECORD> records = Collections.emptyList();
-	private Function<RECORD, String> entityStringFunction;
-	private Function<RECORD, Long> entityDateInMillisFunction;
+public class EntityListModelBuilder<ENTITY extends Entity<ENTITY>> extends RecordListModelBuilder<ENTITY> {
 
 	public EntityListModelBuilder(ApplicationInstanceData applicationInstanceData) {
 		super(applicationInstanceData);
 	}
 
-	public EntityListModelBuilder(ApplicationInstanceData applicationInstanceData, Function<RECORD, String> entityStringFunction) {
-		super(applicationInstanceData);
-		this.entityStringFunction = entityStringFunction;
+	public EntityListModelBuilder(ApplicationInstanceData applicationInstanceData, Function<ENTITY, String> entityStringFunction) {
+		super(applicationInstanceData, entityStringFunction);
 	}
 
-	public EntityListModelBuilder(ApplicationInstanceData applicationInstanceData, Function<RECORD, String> entityStringFunction, Function<RECORD, Long> entityDateInMillisFunction) {
-		super(applicationInstanceData);
-		this.entityStringFunction = entityStringFunction;
-		this.entityDateInMillisFunction = entityDateInMillisFunction;
+	public EntityListModelBuilder(ApplicationInstanceData applicationInstanceData, Function<ENTITY, String> entityStringFunction, Function<ENTITY, Long> entityDateInMillisFunction) {
+		super(applicationInstanceData, entityStringFunction, entityDateInMillisFunction);
 	}
 
-	public void setEntityStringFunction(Function<RECORD, String> entityStringFunction) {
-		this.entityStringFunction = entityStringFunction;
-	}
-
-	public void setEntityDateInMillisFunction(Function<RECORD, Long> entityDateInMillisFunction) {
-		this.entityDateInMillisFunction = entityDateInMillisFunction;
-	}
-
-	public List<RECORD> getRecords() {
-		return records;
-	}
-
-	public void setRecords(List<RECORD> records) {
-		this.records = records;
-		onDataChanged.fire();
-	}
-
-	public void addRecord(RECORD record) {
-		records.add(record);
-		onDataChanged.fire();
-	}
-
-	public void addRecords(List<RECORD> records) {
-		records.addAll(records);
-		onDataChanged.fire();
-	}
-
-	public void removeRecord(RECORD record) {
-		records.remove(record);
-		onDataChanged.fire();
-	}
-
-	public void removeRecords(List<RECORD> records) {
-		records.removeAll(records);
-		onDataChanged.fire();
-	}
-
-
-	@Override
-	public List<RECORD> queryRecords(String fullTextQuery, TimeIntervalFilter timeIntervalFilter) {
-		List<RECORD> filteredEntities = null;
-		if (entityStringFunction != null && fullTextQuery != null && !fullTextQuery.isBlank()) {
-			String query = fullTextQuery.toLowerCase();
-			filteredEntities = records.stream().filter(RECORD -> match(entityStringFunction.apply(RECORD), query)).collect(Collectors.toList());
-		}
-		if (entityDateInMillisFunction != null && timeIntervalFilter != null) {
-			if (filteredEntities == null) {
-				filteredEntities = records;
-			}
-			filteredEntities = filteredEntities.stream().filter(RECORD -> match(timeIntervalFilter, entityDateInMillisFunction.apply(RECORD))).collect(Collectors.toList());
-		}
-
-		if (filteredEntities == null) {
-			filteredEntities = records;
-		}
-		return filteredEntities;
-	}
-
-	private boolean match(String text, String query) {
-		if (text == null) {
-			return false;
-		}
-		return text.toLowerCase().contains(query);
-	}
-
-	private boolean match(TimeIntervalFilter intervalFilter, Long date) {
-		if (date == null) {
-			return false;
-		}
-		return date >= intervalFilter.getStart() && date <= intervalFilter.getEnd();
-	}
 }

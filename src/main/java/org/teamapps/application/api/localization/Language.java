@@ -247,8 +247,8 @@ public enum Language {
 		return "org.teamapps.dictionary.language." + name();
 	}
 
-	public String getLanguageLocalized(ApplicationInstanceData applicationInstanceData) {
-		return applicationInstanceData.getLocalized(getKey());
+	public String getLanguageLocalized(ApplicationLocalizationProvider localizationProvider) {
+		return localizationProvider.getLocalized(getKey());
 	}
 
 	public static FlagIcon getLanguageIconByIsoCode(String isoCode) {
@@ -265,9 +265,9 @@ public enum Language {
 		return languageIcon != null ? languageIcon : defaultIcon;
 	}
 
-	private boolean matchLanguage(String query, ApplicationInstanceData applicationInstanceData) {
+	private boolean matchLanguage(String query, ApplicationLocalizationProvider localizationProvider) {
 		query = query.toLowerCase();
-		String localized = getLanguageLocalized(applicationInstanceData);
+		String localized = getLanguageLocalized(localizationProvider);
 		if ((localized != null && localized.toLowerCase().contains(query)) || query.equals(getIsoCode().toLowerCase())) {
 			return true;
 		} else {
@@ -275,22 +275,22 @@ public enum Language {
 		}
 	}
 
-	public static String getLocalizedLanguageNameByIsoCode(String isoCode, ApplicationInstanceData applicationInstanceData) {
+	public static String getLocalizedLanguageNameByIsoCode(String isoCode, ApplicationLocalizationProvider localizationProvider) {
 		Language entry = entryByLanguage.get(isoCode);
 		if (entry != null) {
-			return entry.getLanguageLocalized(applicationInstanceData);
+			return entry.getLanguageLocalized(localizationProvider);
 		} else {
 			return isoCode;
 		}
 	}
 
-	public static PropertyExtractor<Language> getPropertyExtractor(ApplicationInstanceData applicationInstanceData) {
+	public static PropertyExtractor<Language> getPropertyExtractor(ApplicationLocalizationProvider localizationProvider) {
 		return (language, s) -> {
 			switch (s) {
 				case BaseTemplate.PROPERTY_ICON:
 					return language.getIcon();
 				case BaseTemplate.PROPERTY_CAPTION:
-					return language.getLanguageLocalized(applicationInstanceData);
+					return language.getLanguageLocalized(localizationProvider);
 				case BaseTemplate.PROPERTY_DESCRIPTION:
 					return language.getIsoCode();
 			}
@@ -298,47 +298,47 @@ public enum Language {
 		};
 	}
 
-	public static ComboBox<Language> createComboBox(ApplicationInstanceData applicationInstanceData) {
-		return createComboBox(applicationInstanceData, null);
+	public static ComboBox<Language> createComboBox(ApplicationLocalizationProvider localizationProvider) {
+		return createComboBox(localizationProvider, null);
 	}
 
-	public static ComboBox<Language> createComboBox(ApplicationInstanceData applicationInstanceData, Set<Language> allowedLanguages) {
+	public static ComboBox<Language> createComboBox(ApplicationLocalizationProvider localizationProvider, Set<Language> allowedLanguages) {
 		ComboBox<Language> comboBox = new ComboBox<>(BaseTemplate.LIST_ITEM_SMALL_ICON_SINGLE_LINE);
 		comboBox.setDropDownTemplate(BaseTemplate.LIST_ITEM_MEDIUM_ICON_TWO_LINES);
-		comboBox.setPropertyExtractor(getPropertyExtractor(applicationInstanceData));
+		comboBox.setPropertyExtractor(getPropertyExtractor(localizationProvider));
 		List<Language> languages = Arrays.stream(Language.values())
 				.filter(language -> allowedLanguages == null || allowedLanguages.contains(language))
 				.collect(Collectors.toList());
-		comboBox.setModel(getComboBoxModel(applicationInstanceData, languages));
-		comboBox.setRecordToStringFunction(language -> language.getLanguageLocalized(applicationInstanceData));
+		comboBox.setModel(getComboBoxModel(localizationProvider, languages));
+		comboBox.setRecordToStringFunction(language -> language.getLanguageLocalized(localizationProvider));
 		return comboBox;
 	}
 
-	public static TagComboBox<Language> createTagComboBox(ApplicationInstanceData applicationInstanceData) {
+	public static TagComboBox<Language> createTagComboBox(ApplicationLocalizationProvider applicationInstanceData) {
 		return createTagComboBox(applicationInstanceData, null);
 	}
 
-	public static TagComboBox<Language> createTagComboBox(ApplicationInstanceData applicationInstanceData, Set<Language> allowedLanguages) {
+	public static TagComboBox<Language> createTagComboBox(ApplicationLocalizationProvider localizationProvider, Set<Language> allowedLanguages) {
 		TagComboBox<Language> tagComboBox = new TagComboBox<>();
 		tagComboBox.setTemplate(BaseTemplate.LIST_ITEM_SMALL_ICON_SINGLE_LINE);
 		tagComboBox.setDropDownTemplate(BaseTemplate.LIST_ITEM_MEDIUM_ICON_TWO_LINES);
 		List<Language> languages = Arrays.stream(Language.values())
 				.filter(language -> allowedLanguages == null || allowedLanguages.contains(language))
 				.collect(Collectors.toList());
-		tagComboBox.setModel(getComboBoxModel(applicationInstanceData, languages));
-		tagComboBox.setPropertyExtractor(getPropertyExtractor(applicationInstanceData));
-		tagComboBox.setRecordToStringFunction(language -> language.getLanguageLocalized(applicationInstanceData));
+		tagComboBox.setModel(getComboBoxModel(localizationProvider, languages));
+		tagComboBox.setPropertyExtractor(getPropertyExtractor(localizationProvider));
+		tagComboBox.setRecordToStringFunction(language -> language.getLanguageLocalized(localizationProvider));
 		return tagComboBox;
 	}
 
-	private static ComboBoxModel<Language> getComboBoxModel(ApplicationInstanceData applicationInstanceData, List<Language> languages) {
+	private static ComboBoxModel<Language> getComboBoxModel(ApplicationLocalizationProvider localizationProvider, List<Language> languages) {
 				return s -> {
 			if (s == null || s.isBlank()) {
 				return languages;
 			} else {
 				final String query = s.toLowerCase();
 				return languages.stream()
-						.filter(language -> language.matchLanguage(query, applicationInstanceData))
+						.filter(language -> language.matchLanguage(query, localizationProvider))
 						.collect(Collectors.toList());
 			}
 		};

@@ -19,48 +19,16 @@
  */
 package org.teamapps.application.api.application;
 
-import org.teamapps.application.api.config.ApplicationConfig;
-import org.teamapps.application.api.localization.LocalizationData;
-import org.teamapps.application.api.privilege.ApplicationPrivilegeProvider;
-import org.teamapps.application.api.privilege.ApplicationRole;
-import org.teamapps.application.api.privilege.PrivilegeGroup;
-import org.teamapps.application.api.versioning.ApplicationVersion;
-import org.teamapps.icons.Icon;
-import org.teamapps.universaldb.schema.SchemaInfoProvider;
+import org.teamapps.application.api.application.perspective.PerspectiveBuilder;
 import org.teamapps.ux.application.ResponsiveApplication;
 
 import java.util.List;
 
-public interface ApplicationBuilder {
+public interface ApplicationBuilder extends BaseApplicationBuilder {
 
-	ApplicationVersion getApplicationVersion();
+	List<PerspectiveBuilder> getPerspectiveBuilders();
 
-	default String getReleaseNotes() {
-		return null;
+	@Override
+	default void build(ResponsiveApplication application, ApplicationInstanceData applicationInstanceData) {
 	}
-
-	Icon getApplicationIcon();
-
-	String getApplicationName();
-
-	String getApplicationTitleKey();
-
-	String getApplicationDescriptionKey();
-
-	List<ApplicationRole> getApplicationRoles();
-
-	List<PrivilegeGroup> getPrivilegeGroups();
-
-	LocalizationData getLocalizationData();
-
-	SchemaInfoProvider getDatabaseModel();
-
-	ApplicationConfig getApplicationConfig();
-
-	void bootstrapApplicationBuilder();
-
-	boolean isApplicationAccessible(ApplicationPrivilegeProvider privilegeProvider);
-
-	void build(ResponsiveApplication application, ApplicationInstanceData applicationInstanceData);
-
 }

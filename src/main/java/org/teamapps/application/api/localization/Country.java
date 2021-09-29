@@ -285,6 +285,8 @@ public enum Country {
 	YE_YEMEN("YE", "Yemen", FlagIcon.YE_YEMEN),
 	ZM_ZAMBIA("ZM", "Zambia", FlagIcon.ZM_ZAMBIA),
 	ZW_ZIMBABWE("ZW", "Zimbabwe", FlagIcon.ZW_ZIMBABWE),
+
+	XK_KOSOVO("XK", "Kosovo", FlagIcon.XK_KOSOVO),
 	;
 
 	private final static Map<String, Country> entryByCountryIsoCode = new HashMap<>();

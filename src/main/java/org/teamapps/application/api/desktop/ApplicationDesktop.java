@@ -19,9 +19,14 @@
  */
 package org.teamapps.application.api.desktop;
 
+import org.teamapps.icons.Icon;
+import org.teamapps.ux.application.ResponsiveApplication;
+
 public interface ApplicationDesktop {
 
-	void focus();
+	ResponsiveApplication getApplication();
+
+	void showApplication(Icon icon, String title, boolean select, boolean closable);
 
 	void close();
 

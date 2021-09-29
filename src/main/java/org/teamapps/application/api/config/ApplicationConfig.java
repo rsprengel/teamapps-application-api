@@ -19,5 +19,52 @@
  */
 package org.teamapps.application.api.config;
 
-public class ApplicationConfig {
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.security.AnyTypePermission;
+import org.teamapps.event.Event;
+
+public class ApplicationConfig<CONFIG> {
+
+	private CONFIG config;
+	public final Event<CONFIG> onConfigUpdate = new Event<>();
+
+
+	public ApplicationConfig() {
+	}
+
+	public CONFIG getConfig() {
+		return config;
+	}
+
+	public void setConfig(CONFIG config) {
+		this.config = config;
+	}
+
+	public void updateConfig(String xml, ClassLoader classLoader) throws Exception {
+		try {
+			XStream xStream = createXStream(classLoader);
+			CONFIG config = (CONFIG) xStream.fromXML(xml);
+			setConfig(config);
+			onConfigUpdate.fire(config);
+		} catch (Throwable e) {
+			throw new Exception(e);
+		}
+	}
+
+	public String getConfigXml(ClassLoader classLoader) {
+		if (getConfig() == null) {
+			return null;
+		}
+		XStream xStream = createXStream(classLoader);
+		return xStream.toXML(getConfig());
+	}
+
+
+	private XStream createXStream(ClassLoader classLoader) {
+		XStream xStream = new XStream(new DomDriver());
+		xStream.setClassLoader(classLoader);
+		xStream.addPermission(AnyTypePermission.ANY);
+		return xStream;
+	}
 }

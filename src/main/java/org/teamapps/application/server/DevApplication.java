@@ -20,13 +20,16 @@
 package org.teamapps.application.server;
 
 import org.teamapps.application.api.application.ApplicationInstanceData;
-import org.teamapps.application.api.application.ApplicationPerspective;
-import org.teamapps.application.api.application.ApplicationPerspectiveBuilder;
-import org.teamapps.application.api.application.PerspectiveBuilder;
+import org.teamapps.application.api.application.perspective.ApplicationPerspective;
+import org.teamapps.application.api.application.ApplicationBuilder;
+import org.teamapps.application.api.application.perspective.PerspectiveBuilder;
+import org.teamapps.application.api.localization.ApplicationLocalizationProvider;
 import org.teamapps.application.api.localization.Dictionary;
-import org.teamapps.application.api.organization.OrgUnit;
+
+import org.teamapps.application.api.privilege.ApplicationRole;
 import org.teamapps.common.format.Color;
 import org.teamapps.application.api.theme.ApplicationIcons;
+import org.teamapps.model.controlcenter.OrganizationUnitView;
 import org.teamapps.reporting.convert.DocumentConverter;
 import org.teamapps.ux.application.ResponsiveApplication;
 import org.teamapps.ux.application.layout.StandardLayout;
@@ -41,21 +44,24 @@ import org.teamapps.ux.component.toolbar.ToolbarButton;
 import org.teamapps.ux.component.toolbar.ToolbarButtonGroup;
 import org.teamapps.ux.component.tree.Tree;
 import org.teamapps.ux.model.ListTreeModel;
+import org.teamapps.ux.session.SessionContext;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DevApplication {
 
-	private final ApplicationPerspectiveBuilder applicationBuilder;
+	private final ApplicationBuilder applicationBuilder;
 	private final DevApplicationData applicationData;
 	private ResponsiveApplication application;
 
-	public DevApplication(ApplicationPerspectiveBuilder applicationBuilder, List<OrgUnit> orgUnits, DocumentConverter documentConverter) {
+	public DevApplication(ApplicationRole applicationRole, SessionContext context, Locale locale, ApplicationLocalizationProvider applicationLocalizationProvider, ApplicationBuilder applicationBuilder, List<OrganizationUnitView> organizationUnitViews, DocumentConverter documentConverter) {
 		this.applicationBuilder = applicationBuilder;
 		application = ResponsiveApplication.createApplication();
-		applicationData = new DevApplicationData(applicationBuilder, orgUnits, documentConverter, application);
+		applicationData = new DevApplicationData(applicationRole, context, locale, applicationLocalizationProvider, applicationBuilder, organizationUnitViews, documentConverter, application);
 		createUi();
 	}
 
@@ -79,8 +85,11 @@ public class DevApplication {
 		MobileLayout mobileLayout = new MobileLayout();
 		verticalLayout.addComponentFillRemaining(mobileLayout);
 
-
-		ListTreeModel<PerspectiveBuilder> treeModel = new ListTreeModel<>(applicationBuilder.getPerspectiveBuilders());
+		List<PerspectiveBuilder> perspectiveBuilders = applicationBuilder.getPerspectiveBuilders()
+				.stream()
+				.filter(p -> p.isPerspectiveAccessible(applicationData))
+				.collect(Collectors.toList());
+		ListTreeModel<PerspectiveBuilder> treeModel = new ListTreeModel<>(perspectiveBuilders);
 		Tree<PerspectiveBuilder> tree = new Tree<>(treeModel);
 		tree.setShowExpanders(false);
 		tree.setEntryTemplate(BaseTemplate.LIST_ITEM_VERY_LARGE_ICON_TWO_LINES);
@@ -106,7 +115,7 @@ public class DevApplication {
 			showPerspective(perspectiveBuilder, applicationData, application, backButton, mobileLayout, applicationPerspectiveByPerspectiveBuilder);
 		});
 
-		showPerspective(applicationBuilder.getPerspectiveBuilders().get(0), applicationData, application, backButton, mobileLayout, applicationPerspectiveByPerspectiveBuilder);
+		showPerspective(perspectiveBuilders.get(0), applicationData, application, backButton, mobileLayout, applicationPerspectiveByPerspectiveBuilder);
 
 		backButton.onClick.addListener(() -> {
 			backButton.setVisible(false);

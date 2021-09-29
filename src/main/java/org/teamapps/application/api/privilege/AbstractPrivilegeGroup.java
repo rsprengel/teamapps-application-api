@@ -24,6 +24,7 @@ import org.teamapps.icons.Icon;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public abstract class AbstractPrivilegeGroup implements PrivilegeGroup {
@@ -100,5 +101,18 @@ public abstract class AbstractPrivilegeGroup implements PrivilegeGroup {
 	@Override
 	public Supplier<List<PrivilegeObject>> getPrivilegeObjectsSupplier() {
 		return privilegeObjectsSupplier;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		AbstractPrivilegeGroup that = (AbstractPrivilegeGroup) o;
+		return getName().equals(that.getName());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getName());
 	}
 }

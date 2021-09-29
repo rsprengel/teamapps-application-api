@@ -21,6 +21,8 @@ package org.teamapps.application.api.privilege;
 
 import org.teamapps.icons.Icon;
 
+import java.util.Objects;
+
 public class PrivilegeImpl implements Privilege {
 
 	private final PrivilegeType privilegeType;
@@ -53,5 +55,18 @@ public class PrivilegeImpl implements Privilege {
 	@Override
 	public String getTitleKey() {
 		return titleKey;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		AbstractPrivilegeGroup that = (AbstractPrivilegeGroup) o;
+		return getName().equals(that.getName());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getName());
 	}
 }

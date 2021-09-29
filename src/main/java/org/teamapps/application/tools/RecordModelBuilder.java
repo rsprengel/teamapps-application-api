@@ -36,20 +36,27 @@ import org.teamapps.ux.component.field.TextField;
 import org.teamapps.ux.component.infiniteitemview.AbstractInfiniteItemViewModel;
 import org.teamapps.ux.component.infiniteitemview.InfiniteItemView2;
 import org.teamapps.ux.component.infiniteitemview.InfiniteItemViewModel;
+import org.teamapps.ux.component.panel.Panel;
 import org.teamapps.ux.component.table.AbstractTableModel;
 import org.teamapps.ux.component.table.Table;
 import org.teamapps.ux.component.table.TableColumn;
 import org.teamapps.ux.component.table.TableModel;
 import org.teamapps.ux.component.template.Template;
 import org.teamapps.ux.component.timegraph.*;
-import org.teamapps.ux.component.timegraph.partitioning.PartitioningTimeGraphModel;
-import org.teamapps.ux.component.timegraph.partitioning.StaticRawTimedDataModel;
-import org.teamapps.ux.session.SessionContext;
+import org.teamapps.ux.component.timegraph.graph.LineGraph;
+import org.teamapps.ux.component.timegraph.model.LineGraphModel;
+import org.teamapps.ux.component.timegraph.model.timestamps.PartitioningTimestampsLineGraphModel;
+import org.teamapps.ux.component.timegraph.model.timestamps.StaticTimestampsModel;
+import org.teamapps.ux.component.tree.Tree;
+import org.teamapps.ux.component.tree.TreeNodeInfo;
+import org.teamapps.ux.component.tree.TreeNodeInfoImpl;
+import org.teamapps.ux.model.AbstractTreeModel;
+import org.teamapps.ux.model.TreeModel;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -57,8 +64,7 @@ import java.util.stream.Collectors;
 
 public abstract class RecordModelBuilder<RECORD> {
 
-	public Event<Void> onDataChanged = new Event<>();
-	public Event<RECORD> onSelectedRecordChanged = new Event<>();
+	public final Event<Void> onDataChanged = new Event<>();
 
 	private final ApplicationInstanceData applicationInstanceData;
 	private TimeIntervalFilter timeIntervalFilter;
@@ -67,45 +73,60 @@ public abstract class RecordModelBuilder<RECORD> {
 	private boolean sortAscending;
 	private Predicate<RECORD> customFilter;
 	private Function<String, Comparator<RECORD>> customFieldSorter;
+	private BiFunction<RECORD, String, Boolean> customFullTextFilter;
 
 	private int countRecords;
 	private List<RECORD> records;
-	private TwoWayBindableValue<RECORD> selectedRecord = TwoWayBindableValue.create();
-	private TwoWayBindableValue<Integer> selectedRecordPosition = TwoWayBindableValue.create();
+	private List<RECORD> timeGraphRecords;
+	private Supplier<long[]> timeGraphDataSupplier;
+	private String timeGraphFieldName;
+	private final TwoWayBindableValue<RECORD> selectedRecord = TwoWayBindableValue.create();
+	private final TwoWayBindableValue<Integer> selectedRecordPosition = TwoWayBindableValue.create();
 
 
 	public RecordModelBuilder(ApplicationInstanceData applicationInstanceData) {
 		this.applicationInstanceData = applicationInstanceData;
 		onDataChanged.addListener(this::queryRecords);
-		onSelectedRecordChanged.addListener(record -> selectedRecord.set(record));
+	}
+
+	public ApplicationInstanceData getApplicationInstanceData() {
+		return applicationInstanceData;
 	}
 
 	public void setSelectedRecord(RECORD record) {
-		onSelectedRecordChanged.fire(record);
+		selectedRecord.set(record);
 	}
 
 	public RECORD getSelectedRecord() {
 		return selectedRecord.get();
 	}
 
+	public TwoWayBindableValue<RECORD> getSelectedRecordBindableValue() {
+		return selectedRecord;
+	}
+
+	public Event<RECORD> getOnSelectionEvent() {
+		return selectedRecord.onChanged();
+	}
+
 	public boolean selectPreviousRecord() {
 		if (countRecords == 0) {
 			return false;
 		}
-		RECORD selectedRecord = this.selectedRecord.get();
-		if (selectedRecord == null) {
-			selectedRecord = records.get(0);
+		RECORD record = this.selectedRecord.get();
+		if (record == null) {
+			record = records.get(0);
 			selectedRecordPosition.set(0);
-			onSelectedRecordChanged.fire(selectedRecord);
+			selectedRecord.set(record);
 		}
-		int recordPosition = findRecordPosition(selectedRecord);
+		int recordPosition = findRecordPosition(record);
 		if (recordPosition <= 0) {
 			return false;
 		} else {
 			recordPosition--;
-			RECORD record = records.get(recordPosition);
+			record = records.get(recordPosition);
 			selectedRecordPosition.set(recordPosition);
-			onSelectedRecordChanged.fire(record);
+			selectedRecord.set(record);
 			return true;
 		}
 	}
@@ -114,20 +135,23 @@ public abstract class RecordModelBuilder<RECORD> {
 		if (countRecords == 0) {
 			return false;
 		}
-		RECORD selectedRecord = this.selectedRecord.get();
-		if (selectedRecord == null) {
-			selectedRecord = records.get(0);
+		RECORD record = this.selectedRecord.get();
+		if (record == null) {
+			record = records.get(0);
 			selectedRecordPosition.set(0);
-			onSelectedRecordChanged.fire(selectedRecord);
+			selectedRecord.set(record);
 		}
-		int recordPosition = findRecordPosition(selectedRecord);
+		int recordPosition = findRecordPosition(record);
 		if (recordPosition < 0) {
 			return false;
 		} else {
 			recordPosition++;
-			RECORD record = records.get(recordPosition);
+			if (recordPosition >= records.size()) {
+				return false;
+			}
+			record = records.get(recordPosition);
 			selectedRecordPosition.set(recordPosition);
-			onSelectedRecordChanged.fire(record);
+			selectedRecord.set(record);
 			return true;
 		}
 	}
@@ -155,15 +179,23 @@ public abstract class RecordModelBuilder<RECORD> {
 	}
 
 	public void attachViewCountHandler(View view, Supplier<String> titleSupplier) {
+		attachViewCountHandler(view.getPanel(), titleSupplier);
+	}
+
+	public void attachViewCountHandler(Panel panel, Supplier<String> titleSupplier) {
 		onDataChanged.addListener(() -> {
-			view.getPanel().setTitle(titleSupplier.get() + " (" + countRecords + ")");
+			panel.setTitle(titleSupplier.get() + " (" + countRecords + ")");
 		});
 	}
 
 	public void attachSearchField(View view) {
+		attachSearchField(view.getPanel());
+	}
+
+	public void attachSearchField(Panel panel) {
 		TextField searchField = createSearchField();
-		view.getPanel().setRightHeaderField(searchField);
-		view.getPanel().setRightHeaderFieldIcon(ApplicationIcons.FUNNEL);
+		panel.setRightHeaderField(searchField);
+		panel.setRightHeaderFieldIcon(ApplicationIcons.FUNNEL);
 	}
 
 	public TextField createSearchField() {
@@ -194,9 +226,19 @@ public abstract class RecordModelBuilder<RECORD> {
 		Table<RECORD> table = new Table<>();
 		table.setModel(createTableModel());
 		table.onSortingChanged.addListener(event -> setSorting(event.getSortField(), event.getSortDirection() == SortDirection.ASC));
-		table.onRowSelected.addListener(record -> onSelectedRecordChanged.fire(record));
+		table.onRowSelected.addListener(selectedRecord::set);
 		return table;
 	}
+
+	public Table<RECORD> createListTable(boolean forceFitWidth) {
+		Table<RECORD> table = createTable();
+		table.setDisplayAsList(true);
+		table.setForceFitWidth(forceFitWidth);
+		table.setStripedRows(false);
+		table.setRowHeight(28);
+		return table;
+	}
+
 
 	public Table<RECORD> createTemplateFieldTableList(Template template, PropertyProvider<RECORD> propertyProvider, int rowHeight) {
 		Table<RECORD> table = createTable();
@@ -213,7 +255,7 @@ public abstract class RecordModelBuilder<RECORD> {
 	}
 
 	public InfiniteItemViewModel<RECORD> createInfiniteItemViewModel() {
-		InfiniteItemViewModel<RECORD> model = new AbstractInfiniteItemViewModel<RECORD>() {
+		InfiniteItemViewModel<RECORD> model = new AbstractInfiniteItemViewModel<>() {
 			@Override
 			public int getCount() {
 				return countRecords;
@@ -231,28 +273,8 @@ public abstract class RecordModelBuilder<RECORD> {
 	public InfiniteItemView2<RECORD> createItemView2(Template template, float itemWidth, int itemHeight) {
 		InfiniteItemView2<RECORD> itemView = new InfiniteItemView2<>(template, itemWidth, itemHeight);
 		itemView.setModel(createInfiniteItemViewModel());
-		itemView.onItemClicked.addListener(record -> onSelectedRecordChanged.fire(record.getRecord()));
+		itemView.onItemClicked.addListener(record -> selectedRecord.set(record.getRecord()));
 		return itemView;
-	}
-
-	public TimeGraphModel createTimeGraphModel(Function<RECORD, Long> recordTimeFunction, String seriesId) {
-		StaticRawTimedDataModel delegationModel = new StaticRawTimedDataModel();
-		PartitioningTimeGraphModel timeGraphModel = new PartitioningTimeGraphModel(SessionContext.current().getTimeZone(), delegationModel) {
-			@Override
-			public Interval getDomainX(Collection<String> dataSeriesId) {
-				Interval domainX = super.getDomainX(dataSeriesId);
-				long diff = (domainX.getMax() - domainX.getMin()) / 20;
-				return new Interval(domainX.getMin() - diff, domainX.getMax() + diff);
-			}
-		};
-		onDataChanged.addListener(() -> {
-			long[] data = new long[records.size()];
-			for (int i = 0; i < records.size(); i++) {
-				data[i] = recordTimeFunction.apply(records.get(i));
-			}
-			delegationModel.setEventTimestampsForDataSeriesIds(seriesId, data);
-		});
-		return timeGraphModel;
 	}
 
 	public TimeGraph createTimeGraph(Function<RECORD, Long> recordTimeFunction, String fieldName) {
@@ -260,16 +282,94 @@ public abstract class RecordModelBuilder<RECORD> {
 		return createTimeGraph(recordTimeFunction, fieldName, color);
 	}
 
+
+	public LineGraphModel createTimeGraphModel(Function<RECORD, Long> recordTimeFunction) {
+		StaticTimestampsModel timestampsModel = new StaticTimestampsModel() {
+			@Override
+			public Interval getDomainX() {
+				Interval domainX = super.getDomainX();
+				long diff = (domainX.getMax() - domainX.getMin()) / 20;
+				return new Interval(domainX.getMin() - diff, domainX.getMax() + diff);
+			}
+		};
+		if (timeGraphDataSupplier == null) {
+			timeGraphDataSupplier = createTimeGraphDataSupplier(recordTimeFunction);
+		}
+		onDataChanged.addListener(() -> timestampsModel.setEventTimestamps(timeGraphDataSupplier.get()));
+		timestampsModel.setEventTimestamps(new long[0]);
+		return new PartitioningTimestampsLineGraphModel(timestampsModel);
+	}
+
+	private Supplier<long[]> createTimeGraphDataSupplier(Function<RECORD, Long> recordTimeFunction) {
+		return () -> {
+			long[] data = new long[timeGraphRecords.size()];
+			int pos = 0;
+			for (int i = 0; i < timeGraphRecords.size(); i++) {
+				Long value = recordTimeFunction.apply(timeGraphRecords.get(i));
+				if (value != null) {
+					data[pos] = value;
+					pos++;
+				}
+			}
+			long[] actualData = new long[pos];
+			System.arraycopy(data, 0, actualData, 0, pos);
+			return actualData;
+		};
+	}
+
+	public void updateTimeGraphRecordTimeFunction(Function<RECORD, Long> recordTimeFunction, String fieldName, TimeGraph timeGraph) {
+		timeGraphDataSupplier = createTimeGraphDataSupplier(recordTimeFunction);
+		timeGraphFieldName = fieldName;
+//		timeIntervalFilter = null;
+//		timeGraph.setSelectedInterval(null);
+		updateModels();
+	}
+
+
 	public TimeGraph createTimeGraph(Function<RECORD, Long> recordTimeFunction, String fieldName, RgbaColor color) {
-		LineChartLine line = new LineChartLine(fieldName, LineChartCurveType.MONOTONE, 0.5f, color, color.withAlpha(0.05f));
-		line.setAreaColorScaleMin(color.withAlpha(0.05f));
-		line.setAreaColorScaleMax(color.withAlpha(0.5f));
-		line.setYScaleType(ScaleType.LINEAR);
-		line.setYScaleZoomMode(LineChartYScaleZoomMode.DYNAMIC_INCLUDING_ZERO);
-		TimeGraphModel timeGraphModel = createTimeGraphModel(recordTimeFunction, fieldName);
-		TimeGraph timeGraph = new TimeGraph(timeGraphModel);
-		timeGraph.onIntervalSelected.addListener(interval -> setTimeIntervalFilter(interval != null ? new TimeIntervalFilter(fieldName, interval.getMin(), interval.getMax()) : null));
+		TimeGraph timeGraph = new TimeGraph();
+		LineGraphModel lineGraphModel = createTimeGraphModel(recordTimeFunction);
+		LineGraph lineGraph = new LineGraph(lineGraphModel, LineChartCurveType.MONOTONE, 0.5f, color, color.withAlpha(0.05f));
+		lineGraph.setAreaColorScaleMin(color.withAlpha(0.05f));
+		lineGraph.setAreaColorScaleMax(color.withAlpha(0.5f));
+		lineGraph.setYScaleType(ScaleType.SYMLOG);
+		lineGraph.setYScaleZoomMode(LineChartYScaleZoomMode.DYNAMIC_INCLUDING_ZERO);
+		lineGraph.setYZeroLineVisible(false);
+		timeGraph.addGraph(lineGraph);
+
+		timeGraphFieldName = fieldName;
+
+		timeGraph.onIntervalSelected.addListener(interval -> setTimeIntervalFilter(interval != null ? new TimeIntervalFilter(timeGraphFieldName, interval.getMin(), interval.getMax()) : null));
+		timeGraph.setSelectedInterval(null);
 		return timeGraph;
+	}
+
+	public TreeModel<RECORD> createTreeModel(Function<RECORD, RECORD> parentRecordFunction, Function<RECORD, Boolean> expandedFunction) {
+		AbstractTreeModel<RECORD> treeModel = new AbstractTreeModel<>() {
+			@Override
+			public TreeNodeInfo getTreeNodeInfo(RECORD record) {
+				return new TreeNodeInfoImpl<>(
+						parentRecordFunction.apply(record),
+						expandedFunction != null ? expandedFunction.apply(record) : false
+				);
+			}
+
+			@Override
+			public List<RECORD> getRecords() {
+				return records;
+			}
+		};
+		onDataChanged.addListener((Runnable) treeModel.onAllNodesChanged::fire);
+		return treeModel;
+	}
+
+	public Tree<RECORD> createTree(Template template, PropertyProvider<RECORD> propertyProvider, Function<RECORD, RECORD> parentRecordFunction, Function<RECORD, Boolean> expandedFunction) {
+		Tree<RECORD> tree = new Tree<>(createTreeModel(parentRecordFunction, expandedFunction));
+		tree.setEntryTemplate(template);
+		tree.setOpenOnSelection(true);
+		tree.setPropertyProvider(propertyProvider);
+		tree.onNodeSelected.addListener(selectedRecord::set);
+		return tree;
 	}
 
 	public void setFullTextQuery(String query) {
@@ -344,6 +444,14 @@ public abstract class RecordModelBuilder<RECORD> {
 		return customFieldSorter;
 	}
 
+	public BiFunction<RECORD, String, Boolean> getCustomFullTextFilter() {
+		return customFullTextFilter;
+	}
+
+	public void setCustomFullTextFilter(BiFunction<RECORD, String, Boolean> customFullTextFilter) {
+		this.customFullTextFilter = customFullTextFilter;
+	}
+
 	private Comparator<RECORD> getQuerySorter() {
 		if (sortField == null || customFieldSorter == null) {
 			return null;
@@ -354,8 +462,17 @@ public abstract class RecordModelBuilder<RECORD> {
 	}
 
 	private void queryRecords() {
-		List<RECORD> result = queryRecords(fullTextQuery, timeIntervalFilter);
+		records = performQuery(timeIntervalFilter);
+		countRecords = records.size();
+		if (timeIntervalFilter != null) {
+			timeGraphRecords = performQuery(null);
+		} else {
+			timeGraphRecords = records;
+		}
+	}
 
+	private List<RECORD> performQuery(TimeIntervalFilter timeIntervalFilter) {
+		List<RECORD> result = queryRecords(fullTextQuery, timeIntervalFilter);
 		if (customFilter != null) {
 			result = result.stream()
 					.filter(record -> customFilter.test(record))
@@ -365,8 +482,7 @@ public abstract class RecordModelBuilder<RECORD> {
 		if (sorter != null) {
 			result = result.stream().sorted(sorter).collect(Collectors.toList());
 		}
-		this.records = result;
-		this.countRecords = records.size();
+		return result;
 	}
 
 	public abstract List<RECORD> queryRecords(String fullTextQuery, TimeIntervalFilter timeIntervalFilter);
